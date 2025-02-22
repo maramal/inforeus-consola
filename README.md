@@ -1,6 +1,6 @@
 # Info Reus - Consola de administración
 
-## Variables de ambiente
+## Variables de entorno
 
 | Nombre | Descripción |
 |--------|-------------|
