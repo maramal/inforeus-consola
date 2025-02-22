@@ -18,6 +18,7 @@ import {
     Table,
     TableBody,
     TableCell,
+    TableFooter,
     TableHead,
     TableHeader,
     TableRow
@@ -36,6 +37,7 @@ interface DataTableProps<TData, TValue> {
     data: TData[]
     noResultText?: string,
     filterInputs?: FilterInputProps[]
+    totals?: boolean
 }
 
 export function DataTable<TData, TValue>({
@@ -43,6 +45,7 @@ export function DataTable<TData, TValue>({
     data,
     noResultText,
     filterInputs,
+    totals = false
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([])
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -123,6 +126,14 @@ export function DataTable<TData, TValue>({
                             </TableRow>
                         )}
                     </TableBody>
+                    {totals && (
+                        <TableFooter>
+                            <TableRow>
+                                <TableCell>Total</TableCell>
+                                <TableCell>{table.getRowCount()}</TableCell>
+                            </TableRow>
+                        </TableFooter>
+                    )}
                 </Table>
             </div>
             <div className="flex items-center justify-end space-x-2 py-4">

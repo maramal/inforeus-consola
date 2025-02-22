@@ -38,5 +38,9 @@ export async function GET(req: NextRequest, { params }: { params: { storeId: str
     response.message = ''
     response.data = store
 
-    return NextResponse.json(response)
+    return NextResponse.json(response, {
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+        }
+    })
 }

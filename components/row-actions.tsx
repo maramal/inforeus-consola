@@ -16,11 +16,13 @@ import DeleteButton from "@/components/delete-btn"
 export default function RowActions<TModel extends { id: number }>({
     row,
     path,
-    deleteAction
+    deleteAction,
+    disabled,
 }: {
     row: Row<TModel>,
     path: string,
-    deleteAction: (itemId: number) => void
+    deleteAction: (itemId: number) => void,
+    disabled?: boolean
 }) {
     return (
         <DropdownMenu>
@@ -60,6 +62,7 @@ export default function RowActions<TModel extends { id: number }>({
                         itemId={row.original.id}
                         refUrl={path}
                         variant="ghost"
+                        disabled={disabled}
                     />
                 </DropdownMenuItem>
             </DropdownMenuContent>

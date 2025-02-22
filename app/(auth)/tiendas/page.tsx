@@ -3,6 +3,7 @@ import { Store, columns } from "./columns"
 import { DataTable, FilterInputProps } from "@/components/ui/data-table"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { checkUserRole } from "@/lib/auth"
 
 async function getData(): Promise<Store[]> {
     const dbUsers = await prisma.store.findMany()
@@ -18,6 +19,8 @@ async function getData(): Promise<Store[]> {
 
 export default async function UsersPage() {
     const data = await getData()
+
+    await checkUserRole('tiendas')
 
     const filterInputs: FilterInputProps[] = [
         {

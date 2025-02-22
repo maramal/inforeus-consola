@@ -7,12 +7,13 @@ import { UserRole, UserStatus, User } from "@prisma/client"
 import { useForm } from "@conform-to/react"
 import { parseWithZod } from "@conform-to/zod"
 import { updateUserSchema } from "@/schemas/users"
-import { getUser, updateUser } from "@/actions/users"
+import { getUser, updateUser, getUserByAuthId } from "@/actions/users"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { useAuth } from "@clerk/nextjs"
 
 const roles: UserRole[] = ["Administrador", "Cliente"]
 const statuses: UserStatus[] = ["Activo", "Inactivo"]
@@ -20,8 +21,10 @@ const statuses: UserStatus[] = ["Activo", "Inactivo"]
 export default function EditUserPage() {
     const { userId } = useParams()
     const [user, setUser] = useState<User | null>(null)
+    const [loggedInUser, setLoggedInUser] = useState<User | null>(null)
     const [mounted, setMounted] = useState(false)
     const [lastResult, action] = useActionState(updateUser, undefined)
+    const { userId: authId } = useAuth()
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -35,6 +38,17 @@ export default function EditUserPage() {
 
         fetchUser()
     }, [userId])
+
+    useEffect(() => {
+        async function fetchUser() {
+            const dbUser = await getUserByAuthId(authId as string)
+            setLoggedInUser(dbUser)
+        }
+
+        if (authId) {
+            fetchUser()
+        }
+    }, [authId])
 
     useEffect(() => {
         setMounted(true)
@@ -67,7 +81,7 @@ export default function EditUserPage() {
             <Card className="w-full max-w-lg">
                 <CardHeader>
                     <CardTitle className="text-2xl font-bold text-center">
-                        Editar User
+                        Editar Usuario
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -129,6 +143,7 @@ export default function EditUserPage() {
                                 name={fields.role.name}
                                 defaultValue={user?.role}
                                 id="role"
+                                disabled={loggedInUser !== null && loggedInUser.role === "Cliente"}
                             >
                                 {roles.map((role) => (
                                     <option key={role} value={role}>
@@ -152,6 +167,7 @@ export default function EditUserPage() {
                                 name={fields.status.name}
                                 defaultValue={user?.status}
                                 id="status"
+                                disabled={loggedInUser !== null && loggedInUser.role === "Cliente"}
                             >
                                 {statuses.map((status) => (
                                     <option key={status} value={status}>

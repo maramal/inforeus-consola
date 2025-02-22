@@ -18,6 +18,10 @@ export const updateUserSchema = z.object({
 })
 
 export const updatePasswordSchema = z.object({
-    id: z.number().optional(),
-    password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres")
+    id: z.number(),
+    password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres"),
+    retypePassword: z.string(),
+}).refine((data) => data.password === data.retypePassword, {
+    message: "Las contraseñas no coinciden",
+    path: ["retypePassword"],
 })

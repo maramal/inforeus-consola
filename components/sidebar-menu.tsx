@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   NavigationMenu,
@@ -8,7 +8,9 @@ import {
   NavigationMenuItem,
 } from "@/components/ui/navigation-menu";
 import { Home, Users, Menu, Store } from "lucide-react";
-import { useUser, SignInButton, UserButton } from "@clerk/nextjs";
+import { useAuth, UserButton } from "@clerk/nextjs";
+import { User } from "@prisma/client";
+import { getUserByAuthId } from "@/actions/users";
 
 type NavigationLink = {
   name: string;
@@ -35,12 +37,31 @@ const links: NavigationLink[] = [
 ];
 
 const SidebarMenu: React.FC = () => {
+  const [mounted, setMounted] = useState(false)
+  const [user, setUser] = useState<User | null>(null)
+
   // Estado para controlar si el sidebar está colapsado
   const [collapsed, setCollapsed] = useState<boolean>(false);
   const width = collapsed ? "w-20" : "w-64";
 
   // Usamos el hook de Clerk para obtener la información del usuario
-  const { isSignedIn, user } = useUser();
+  const { userId } = useAuth();
+
+  useEffect(() => {
+    async function fetchUser() {
+      const user = await getUserByAuthId(userId as string)
+      setUser(user)
+    }
+    if (userId) {
+      fetchUser()
+    }
+  }, [userId])
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) return null
 
   return (
     <div className={`fixed top-0 left-0 h-screen bg-white border-r border-gray-200 transition-all duration-300 ${width}`}>
@@ -66,9 +87,8 @@ const SidebarMenu: React.FC = () => {
                   <NavigationMenuItem key={index} className="w-full">
                     <Link href={link.href}>
                       <div
-                        className={`w-full flex items-center p-4 cursor-pointer transition-colors hover:underline ${
-                          collapsed ? "justify-center" : ""
-                        }`}
+                        className={`w-full flex items-center p-4 cursor-pointer transition-colors hover:underline ${collapsed ? "justify-center" : ""
+                          }`}
                       >
                         <span className={collapsed ? "" : "mr-3"}>{link.icon}</span>
                         {!collapsed && <span className="whitespace-nowrap">{link.name}</span>}
@@ -83,20 +103,14 @@ const SidebarMenu: React.FC = () => {
 
         {/* Sección de usuario con información de Clerk */}
         <div className="p-4 border-t border-gray-200">
-          {isSignedIn ? (
-            <div className={`flex items-center ${collapsed ? "justify-center" : "justify-between"}`}>
-              <UserButton />
-              {!collapsed && (
-                <span className="text-sm font-medium whitespace-nowrap ml-2">
-                  {user?.fullName || user?.firstName || "Usuario"}
-                </span>
-              )}
-            </div>
-          ) : (
-            <div className="flex items-center justify-center">
-              <SignInButton />
-            </div>
-          )}
+          <div className={`flex items-center ${collapsed ? "justify-center" : "justify-between"}`}>
+            <UserButton />
+            {!collapsed && (
+              <span className="text-sm font-medium whitespace-nowrap ml-2">
+                {user?.name || 'Usuario'}
+              </span>
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -1,39 +1,39 @@
 "use server"
 
 import prisma from "@/lib/prisma";
-import { createStoreSchema } from "@/schemas/stores";
+import { updateStoreSchema } from "@/schemas/stores";
 import { parseWithZod } from "@conform-to/zod";
 import { redirect } from "next/navigation";
-import fs from "fs/promises";
-import path from "path";
+import { uploadImage, deleteImage } from "@/lib/storage";
 
-// Helper para guardar la imagen
+// Helper para subir la imagen a Google Cloud Storage usando bucket.upload (aquí usamos file.save con buffer)
 async function saveLogoImage(logoData: string, storeId: number): Promise<string> {
-    // Se espera un string con formato: data:image/<ext>;base64,....
+    // Se espera que logoData tenga el formato: data:image/<ext>;base64,....
     const matches = logoData.match(/^data:(image\/\w+);base64,(.*)$/);
     if (!matches) {
         throw new Error("Formato de imagen inválido");
     }
+
     const ext = matches[1].split("/")[1]; // ej. png, jpg
     const data = matches[2];
     const buffer = Buffer.from(data, "base64");
-    const publicDir = path.join(process.cwd(), "public", "assets", "img", "stores");
-    // Asegurarse de que el directorio existe
-    await fs.mkdir(publicDir, { recursive: true });
-    const imagePath = path.join(publicDir, `${storeId}.${ext}`);
-    await fs.writeFile(imagePath, buffer);
-    // Devolver la ruta relativa que se usará para mostrar la imagen
-    return `/assets/img/stores/${storeId}.${ext}`;
+
+    const fileName = `${storeId}.${ext}`;
+    await uploadImage(buffer, fileName);
+
+    const bucketName = process.env.GOOGLE_BUCKET_NAME;
+    return `https://storage.cloud.google.com/${bucketName}/stores/${fileName}`;
 }
 
-// Helper para eliminar la imagen
+// Helper para eliminar la imagen desde Google Cloud Storage
 async function deleteLogoImage(logoUrl: string): Promise<void> {
     if (!logoUrl) return;
-    // Se asume que logoUrl es una ruta relativa que empieza con '/'
-    const relativePath = logoUrl.startsWith('/') ? logoUrl.slice(1) : logoUrl;
-    const filePath = path.join(process.cwd(), "public", relativePath);
+    // Se asume que la URL tiene la forma: https://storage.googleapis.com/<bucketName>/stores/<fileName>
+    const parts = logoUrl.split("/stores/");
+    if (parts.length < 2) return;
+    const filePath = `stores/${parts[1]}`;
     try {
-        await fs.unlink(filePath);
+        await deleteImage(filePath);
     } catch (error) {
         console.error("Error al eliminar la imagen:", error);
     }
@@ -41,10 +41,10 @@ async function deleteLogoImage(logoUrl: string): Promise<void> {
 
 export async function getStore(storeId: number) {
     return prisma.store.findUnique({
-        where: { 
+        where: {
             id: storeId,
             status: 'Activa'
-         }
+        }
     });
 }
 
@@ -63,23 +63,36 @@ export async function getStores(keyword?: string) {
             }
         });
     }
-
     return prisma.store.findMany();
+}
+
+// Función para obtener el valor de logoUrl como string
+async function getLogoString(logoValue: FormDataEntryValue | null): Promise<string> {
+    if (!logoValue) return "";
+    if (typeof logoValue === "string") {
+        return logoValue;
+    } else {
+        // Asumimos que es un File (o Blob)
+        const file = logoValue as File;
+        const buffer = Buffer.from(await file.arrayBuffer());
+        const mimeType = file.type; // e.g., "image/png"
+        return `data:${mimeType};base64,${buffer.toString("base64")}`;
+    }
 }
 
 export async function createStore(prevState: unknown, formData: FormData) {
     const formSubmitted = parseWithZod(formData, {
-        schema: createStoreSchema
+        schema: updateStoreSchema
     });
 
-    // Validar formulario
     if (formSubmitted.status !== "success") {
         return formSubmitted.reply();
     }
 
     const name = formData.get("name") as string;
     const address = formData.get("address") as string;
-    const logoUrl = formData.get("logoUrl") as string;
+    const logoValue = formData.get("logoUrl");
+    const logoString = await getLogoString(logoValue);
     const featured = formData.get("featured") === "on";
     const keywords = formData.get("keywords") as string;
     const adminId = formData.get("adminId") as string;
@@ -93,22 +106,22 @@ export async function createStore(prevState: unknown, formData: FormData) {
         });
     }
 
-    // Crear la tienda sin la imagen guardada (valor provisional)
+    // Crear la tienda con valor provisional para logoUrl
     let store = await prisma.store.create({
         data: {
             name,
             address,
-            logoUrl,
+            logoUrl: logoString, // valor provisional (puede ser vacío o la imagen en base64)
             featured,
             keywords: keywords.split(',').map((keyword: string) => keyword.trim()),
             adminId: Number(adminId)
         }
     });
 
-    // Si se envió una imagen en formato base64, se guarda la imagen y se actualiza el logoUrl
-    if (logoUrl && logoUrl.startsWith("data:image/")) {
+    // Si se envió una imagen en formato base64, se sube al bucket y se actualiza el logoUrl
+    if (logoString && logoString.startsWith("data:image/")) {
         try {
-            const savedLogoUrl = await saveLogoImage(logoUrl, store.id);
+            const savedLogoUrl = await saveLogoImage(logoString, store.id);
             store = await prisma.store.update({
                 where: { id: store.id },
                 data: { logoUrl: savedLogoUrl }
@@ -127,10 +140,9 @@ export async function createStore(prevState: unknown, formData: FormData) {
 
 export async function updateStore(prevState: unknown, formData: FormData) {
     const formSubmitted = parseWithZod(formData, {
-        schema: createStoreSchema
+        schema: updateStoreSchema,
     });
 
-    // Validar formulario
     if (formSubmitted.status !== "success") {
         return formSubmitted.reply();
     }
@@ -138,34 +150,31 @@ export async function updateStore(prevState: unknown, formData: FormData) {
     const storeId = formData.get("id") as string;
     const name = formData.get("name") as string;
     const address = formData.get("address") as string;
-    const logoUrl = formData.get("logoUrl") as string;
+    const logoValue = formData.get("logoUrl");
+    const logoString = await getLogoString(logoValue);
     const featured = formData.get("featured") === "on";
     const keywords = formData.get("keywords") as string;
     const adminId = formData.get("adminId") as string;
 
-    // Obtener la tienda existente para conocer la imagen anterior
     const existingStore = await prisma.store.findUnique({
         where: { id: Number(storeId) }
     });
 
-    // Datos actualizados
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updatedData: any = {
         name,
         address,
         featured,
         keywords: keywords.split(',').map((keyword: string) => keyword.trim()),
-        adminId: Number(adminId)
+        adminId: Number(adminId),
     };
 
-    // Si se envió una imagen nueva en formato base64, actualizarla
-    if (logoUrl && logoUrl.startsWith("data:image/")) {
+    if (logoString && logoString.startsWith("data:image/")) {
         try {
-            // Si hay imagen anterior guardada, eliminarla
             if (existingStore && existingStore.logoUrl && !existingStore.logoUrl.startsWith("data:")) {
                 await deleteLogoImage(existingStore.logoUrl);
             }
-            const savedLogoUrl = await saveLogoImage(logoUrl, Number(storeId));
+            const savedLogoUrl = await saveLogoImage(logoString, Number(storeId));
             updatedData.logoUrl = savedLogoUrl;
         } catch (error) {
             if (error instanceof Error) {
@@ -175,17 +184,16 @@ export async function updateStore(prevState: unknown, formData: FormData) {
             }
         }
     } else {
-        // Si no se envía nueva imagen, se conserva la ruta actual
-        updatedData.logoUrl = logoUrl;
+        updatedData.logoUrl = logoString;
     }
 
     const store = await prisma.store.update({
         where: { id: Number(storeId) },
-        data: updatedData
+        data: updatedData,
     });
     if (!store) {
         return formSubmitted.reply({
-            formErrors: ['No se pudo actualizar la tienda']
+            formErrors: ['No se pudo actualizar la tienda'],
         });
     }
 
@@ -193,23 +201,20 @@ export async function updateStore(prevState: unknown, formData: FormData) {
 }
 
 export async function deleteStore(storeId: number) {
-    // Primero, obtener la tienda para extraer la ruta del logo
     const store = await prisma.store.findUnique({
-        where: { id: storeId }
+        where: { id: storeId },
     });
     if (!store) {
         return {
             status: 500,
-            body: { error: 'No se pudo encontrar la tienda' }
+            body: { error: 'No se pudo encontrar la tienda' },
         };
     }
 
-    // Eliminar el registro de la tienda en la BD
     await prisma.store.delete({
-        where: { id: storeId }
+        where: { id: storeId },
     });
 
-    // Eliminar la imagen del logo si existe
     if (store.logoUrl) {
         await deleteLogoImage(store.logoUrl);
     }

@@ -2,10 +2,11 @@
 
 import prisma from "@/lib/prisma"
 import { UserStatus, UserRole } from "@prisma/client"
-import { notFound, redirect } from "next/navigation"
+import { notFound, redirect, RedirectType } from "next/navigation"
 import { parseWithZod } from "@conform-to/zod"
-import { clerkClient } from "@clerk/nextjs/server"
+import { auth, clerkClient } from "@clerk/nextjs/server"
 import { createUserSchema, updatePasswordSchema, updateUserSchema } from "@/schemas/users"
+import { isIncluded } from "@/lib/utils"
 
 export async function createUser(prevState: unknown, formData: FormData) {
     const formSubmitted = parseWithZod(formData, {
@@ -23,19 +24,39 @@ export async function createUser(prevState: unknown, formData: FormData) {
     const status = formData.get("status") as UserStatus
     const role = formData.get("role") as UserRole
 
+    if (isIncluded(password, username)) {
+        return formSubmitted.reply({
+            fieldErrors: {
+                password: ['La contraseña no puede contener el nombre de usuario']
+            }
+        })
+    }
+
     const client = await clerkClient()
 
-    // Crear usuario en Clerk
-    const clerkUser = await client.users.createUser({
-        username,
-        password
-    })
+    let clerkUser = undefined
+
+    try {
+        // Crear usuario en Clerk
+        clerkUser = await client.users.createUser({
+            username,
+            password,
+        })
+
+        if (!clerkUser) {
+            throw new Error('No se pudo crear el usuario')
+        }
+    } catch (err) {
+        if (process.env.NODE_ENV === 'development') {
+            console.error(err)
+        }
+    }
 
     if (!clerkUser) {
         return formSubmitted.reply({
             formErrors: [ 'No se pudo crear el usuario' ]
         })
-    }
+    }    
 
     // Crear usuario en base de datos
     const user = await prisma.user.create({
@@ -70,6 +91,19 @@ export async function getUser(userId: number) {
     })
 
     return user
+}
+
+export async function getUserByAuthId(authId: string) {
+    const users = await prisma.user.findMany({
+        where: {
+            authId,
+        },
+        include: {
+            stores: true
+        }
+    })
+
+    return users?.[0]
 }
 
 export async function updateUser(prevState: unknown, formData: FormData) {
@@ -152,10 +186,44 @@ export async function updateUserPassword(prevState: unknown, formData: FormData)
     return redirect(`/usuarios/${id}`)
 }
 
-export async function deleteUser(userId: number) {
+export async function deleteUser($userId: number) {
+    const { userId } = await auth()
+    if (Number(userId) === $userId) {
+        redirect('/usuarios?delete=false', RedirectType.replace)
+    }
+
     await prisma.user.delete({
         where: {
-            id: userId
+            id: $userId
         }
     })
+}
+
+export async function updatePassword(prevState: unknown, formData: FormData) {
+    const formSubmitted = parseWithZod(formData, {
+        schema: updatePasswordSchema
+    })
+
+    if (formSubmitted.status !== "success") {
+        return formSubmitted.reply()
+    }
+
+    const userIdString = formData.get("id") as string
+    const password = formData.get("password") as string
+    
+    const userId = Number(userIdString)
+    const user = await getUser(userId)
+    if (!user) {
+        return formSubmitted.reply({
+            formErrors: ["Parámetros inválidos"]
+        })
+    }
+
+    const client = await clerkClient()
+    
+    await client.users.updateUser(user.authId, {
+        password
+    })
+
+    redirect(`/usuarios/${user.id}`)
 }

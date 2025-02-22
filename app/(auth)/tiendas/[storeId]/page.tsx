@@ -46,10 +46,11 @@ export default async function StorePage({ params }: {
                                     <TableCell colSpan={2} className="flex justify-center py-4">
                                         <Image
                                             width={128}
-                                            height={128}
+                                            height={50}
                                             src={store.logoUrl}
                                             alt={store.name}
-                                            className="w-32 h-32 object-cover"
+                                            unoptimized
+                                            className="w-32 h-32 object-contain"
                                         />
                                     </TableCell>
                                 </TableRow>

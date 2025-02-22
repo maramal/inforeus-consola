@@ -1,11 +1,36 @@
-import prisma from "@/lib/prisma"
 import { User, columns } from "./columns"
 import { DataTable, FilterInputProps } from "@/components/ui/data-table"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { getUsers } from "@/actions/users"
+import { checkUserRole } from "@/lib/auth"
+
+const filterInputs: FilterInputProps[] = [
+    {
+        name: 'name',
+        namePlural: 'nombres'
+    },
+    {
+        name: 'username',
+        namePlural: 'nombres de usuario'
+    },
+    {
+        name: 'role',
+        namePlural: 'roles'
+    },
+    {
+        name: 'status',
+        namePlural: 'estados'
+    },
+    {
+        name: 'createdAt',
+        namePlural: 'fechas de creación',
+        type: 'date'
+    },
+]
 
 async function getData(): Promise<User[]> {
-    const dbUsers = await prisma.user.findMany()
+    const dbUsers = await getUsers()
     const users: User[] = dbUsers.map((user) => ({
         id: user.id,
         username: user.username,
@@ -21,29 +46,7 @@ async function getData(): Promise<User[]> {
 export default async function UsersPage() {
     const data = await getData()
 
-    const filterInputs: FilterInputProps[] = [
-        {
-            name: 'name',
-            namePlural: 'nombres'
-        },
-        {
-            name: 'username',
-            namePlural: 'nombres de usuario'
-        },
-        {
-            name: 'role',
-            namePlural: 'roles'
-        },
-        {
-            name: 'status',
-            namePlural: 'estados'
-        },
-        {
-            name: 'createdAt',
-            namePlural: 'fechas de creación',
-            type: 'date'
-        },
-    ]
+    await checkUserRole('usuarios')
 
     return (
         <div className="container mx-auto py-10">

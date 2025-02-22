@@ -61,7 +61,7 @@ model StoreVisit {
   createdAt DateTime @default(now())
 }
 
-model StoreSearch {
+model KeywordSearch {
   id        Int      @id @default(autoincrement())
   keyword   String
   ipAddress String

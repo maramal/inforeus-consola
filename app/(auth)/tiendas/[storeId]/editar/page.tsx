@@ -148,7 +148,7 @@ export default function EditStorePage() {
                             <Input
                                 className="mt-1"
                                 key={fields.logoUrl.key}
-                                name="logoUrlFile"
+                                name="logoUrl"
                                 id="logoUrl"
                                 type="file"
                             // Aquí podrías agregar el onChange para convertir la imagen a base64, similar a la creación.

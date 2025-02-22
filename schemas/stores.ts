@@ -14,7 +14,7 @@ export const updateStoreSchema = z.object({
     id: z.string().optional(),
     name: z.string().min(1, "El nombre es obligatorio"),
     address: z.string().min(1, "La dirección es obligatoria"),
-    logoUrl: z.string().optional(),
+    logoUrl: z.any().optional(),
     featured: z.boolean().optional(),
     keywords: z.string().optional(),
     status: z.string(),
