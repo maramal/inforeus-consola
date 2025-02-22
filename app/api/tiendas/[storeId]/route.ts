@@ -9,7 +9,7 @@ type GetResponse = {
     data: Store | null
 }
 
-export async function GET(req: NextRequest, { params }: { params: { storeId: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ storeId: string }> }) {
     const { storeId: storeIdString } = await params
     const response: GetResponse = {
         ok: false,
