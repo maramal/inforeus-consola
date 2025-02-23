@@ -111,7 +111,7 @@ export async function createStore(prevState: unknown, formData: FormData) {
         data: {
             name,
             address,
-            logoUrl: logoString, // valor provisional (puede ser vacío o la imagen en base64)
+            logoUrl: '',
             featured,
             keywords: keywords.split(',').map((keyword: string) => keyword.trim()),
             adminId: Number(adminId)
