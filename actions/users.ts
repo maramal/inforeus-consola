@@ -75,7 +75,7 @@ export async function createUser(prevState: unknown, formData: FormData) {
         })
     }
 
-    return redirect(`/usuarios/${user.id}`)
+    return redirect(`/consola/usuarios/${user.id}`)
 }
 
 export async function getUsers() {
@@ -138,7 +138,7 @@ export async function updateUser(prevState: unknown, formData: FormData) {
         }
     })
 
-    return redirect(`/usuarios/${user.id}`)
+    return redirect(`/consola/usuarios/${user.id}`)
 }
 
 export async function updateUserPassword(prevState: unknown, formData: FormData) {
@@ -183,13 +183,13 @@ export async function updateUserPassword(prevState: unknown, formData: FormData)
         })
     }
 
-    return redirect(`/usuarios/${id}`)
+    return redirect(`/consola/usuarios/${id}`)
 }
 
 export async function deleteUser($userId: number) {
     const { userId } = await auth()
     if (Number(userId) === $userId) {
-        redirect('/usuarios?delete=false', RedirectType.replace)
+        redirect('/consola/usuarios?delete=false', RedirectType.replace)
     }
 
     await prisma.user.delete({
@@ -225,5 +225,5 @@ export async function updatePassword(prevState: unknown, formData: FormData) {
         password
     })
 
-    redirect(`/usuarios/${user.id}`)
+    redirect(`/consola/usuarios/${user.id}`)
 }

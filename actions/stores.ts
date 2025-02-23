@@ -135,7 +135,7 @@ export async function createStore(prevState: unknown, formData: FormData) {
         }
     }
 
-    return redirect(`/tiendas/${store.id}`);
+    return redirect(`/consola/tiendas/${store.id}`);
 }
 
 export async function updateStore(prevState: unknown, formData: FormData) {
@@ -197,7 +197,7 @@ export async function updateStore(prevState: unknown, formData: FormData) {
         });
     }
 
-    return redirect(`/tiendas/${store.id}`);
+    return redirect(`/consola/tiendas/${store.id}`);
 }
 
 export async function deleteStore(storeId: number) {
@@ -219,5 +219,5 @@ export async function deleteStore(storeId: number) {
         await deleteLogoImage(store.logoUrl);
     }
 
-    return redirect(`/tiendas`);
+    return redirect(`/consola/tiendas`);
 }
