@@ -45,7 +45,7 @@ export const StoreVisitsColumns: ColumnDef<StoreVisit>[] = [
         cell: ({ row }) => {
             const store = row.original.store;
             return (
-                <Link href={`/tiendas/${store.id}`}>
+                <Link href={`/consola/tiendas/${store.id}`}>
                     {store.name}
                 </Link>
             );

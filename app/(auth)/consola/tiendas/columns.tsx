@@ -61,7 +61,7 @@ export const columns: ColumnDef<Store>[] = [
         cell: ({ row }) => (
             <RowActions
                 row={row}
-                path="/tiendas"
+                path="/consola/tiendas"
                 deleteAction={deleteUser}
             />
         )

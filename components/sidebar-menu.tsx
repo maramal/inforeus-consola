@@ -21,17 +21,17 @@ type NavigationLink = {
 const links: NavigationLink[] = [
   {
     name: "Inicio",
-    href: "/",
+    href: "/consola",
     icon: <Home className="w-5 h-5" />,
   },
   {
     name: "Usuarios",
-    href: "/usuarios",
+    href: "/consola/usuarios",
     icon: <Users className="w-5 h-5" />,
   },
   {
     name: "Tiendas",
-    href: "/tiendas",
+    href: "/consola/tiendas",
     icon: <Store className="w-5 h-5" />,
   }
 ];
