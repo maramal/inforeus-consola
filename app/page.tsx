@@ -140,7 +140,7 @@ export default function Home() {
                             />
                             <div className="text-sm text-gray-600">
                                 <p><Link href="mailto:info@late.uy" target="_blank">info@late.uy</Link></p>
-                                <p><Link href="https://wa.me/+59892552793">092 552 793</Link></p>
+                                <p><Link href="https://wa.me/+59892552793" target="_blank">092 552 793</Link></p>
                             </div>
                         </div>
                         <div>
