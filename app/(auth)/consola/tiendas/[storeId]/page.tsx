@@ -44,14 +44,16 @@ export default async function StorePage({ params }: {
                             {store.logoUrl && (
                                 <TableRow>
                                     <TableCell colSpan={2} className="flex justify-center py-4">
-                                        <Image
-                                            width={128}
-                                            height={50}
-                                            src={store.logoUrl}
-                                            alt={store.name}
-                                            unoptimized
-                                            className="w-32 h-32 object-contain"
-                                        />
+                                        {/* Contenedor relativo para que la imagen se ajuste por completo */}
+                                        <div className="relative w-32 h-32">
+                                            <Image
+                                                src={store.logoUrl}
+                                                alt={store.name}
+                                                unoptimized
+                                                fill
+                                                className="object-contain"
+                                            />
+                                        </div>
                                     </TableCell>
                                 </TableRow>
                             )}
