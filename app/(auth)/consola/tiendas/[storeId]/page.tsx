@@ -39,24 +39,20 @@ export default async function StorePage({ params }: {
                     </h1>
                 </CardHeader>
                 <CardContent className="mt-5">
+                    {store.logoUrl && (
+                        <div className="flex justify-center">
+                            <Image
+                                width={128}
+                                height={50}
+                                src={store.logoUrl}
+                                alt={store.name}
+                                unoptimized
+                                className="w-32 h-32 object-contain"
+                            />
+                        </div>
+                    )}
                     <Table>
                         <TableBody>
-                            {store.logoUrl && (
-                                <TableRow>
-                                    <TableCell colSpan={2} className="flex justify-center py-4">
-                                        {/* Contenedor relativo para que la imagen se ajuste por completo */}
-                                        <div className="relative w-32 h-32">
-                                            <Image
-                                                src={store.logoUrl}
-                                                alt={store.name}
-                                                unoptimized
-                                                fill
-                                                className="object-contain"
-                                            />
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                            )}
                             <TableRow>
                                 <TableCell className="font-bold">Dirección:</TableCell>
                                 <TableCell>{store.address}</TableCell>
