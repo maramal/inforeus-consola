@@ -6,6 +6,10 @@ import { parseWithZod } from "@conform-to/zod";
 import { redirect } from "next/navigation";
 import { uploadImage, deleteImage } from "@/lib/storage";
 
+const siteUrl = process.env.NODE_ENV === 'development'
+    ? 'http://localhost:3000'
+    : 'https://inforeus.uy';
+
 // Helper para subir la imagen a Google Cloud Storage usando bucket.upload (aquí usamos file.save con buffer)
 async function saveLogoImage(logoData: string, storeId: number): Promise<string> {
     // Se espera que logoData tenga el formato: data:image/<ext>;base64,....
@@ -21,15 +25,14 @@ async function saveLogoImage(logoData: string, storeId: number): Promise<string>
     const fileName = `${storeId}.${ext}`;
     await uploadImage(buffer, fileName);
 
-    const bucketName = process.env.GOOGLE_BUCKET_NAME;
-    return `https://storage.cloud.google.com/${bucketName}/stores/${fileName}`;
+    return `${siteUrl}/api/imagenes/stores/${fileName}`;
 }
 
 // Helper para eliminar la imagen desde Google Cloud Storage
 async function deleteLogoImage(logoUrl: string): Promise<void> {
     if (!logoUrl) return;
     // Se asume que la URL tiene la forma: https://storage.googleapis.com/<bucketName>/stores/<fileName>
-    const parts = logoUrl.split("/stores/");
+    const parts = logoUrl.split("/api/imagenes/stores/");
     if (parts.length < 2) return;
     const filePath = `stores/${parts[1]}`;
     try {
