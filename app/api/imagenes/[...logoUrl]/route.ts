@@ -6,15 +6,22 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ logo
 
     const fileUrl = logoUrl.join('/')
 
-    const { dataURI, imageType } = await getImage(fileUrl)    
+    try {
+        const { dataURI, imageType } = await getImage(fileUrl)    
 
-    const headers = new Headers();
-    headers.append('Content-Type', imageType);
+        const headers = new Headers();
+        headers.append('Content-Type', imageType);
+        
+        const buffer = Buffer.from(dataURI.split(',')[1], 'base64');
     
-    const buffer = Buffer.from(dataURI.split(',')[1], 'base64');
+        return new NextResponse(buffer, {
+            status: 200,
+            headers
+        });
+    } catch (err) {
+        console.error(err)
+        return NextResponse.redirect(new URL("/pagina-no-encontrada", req.url))
+    }
 
-    return new NextResponse(buffer, {
-        status: 200,
-        headers
-    });
+    
 }
