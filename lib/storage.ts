@@ -17,3 +17,14 @@ export async function deleteImage(fileUrl: string) {
     const file = bucket.file(fileUrl);
     await file.delete();
 }
+
+export async function getImage(fileUrl: string) {
+    const file = bucket.file(fileUrl);
+    const [buffer] = await file.download();
+
+    const imageType = fileUrl.split('.').pop() ?? 'jpg';
+    const base64Image = buffer.toString('base64');
+    const dataURI = `data:image/${imageType};base64,${base64Image}`;
+
+    return { dataURI, imageType };
+}

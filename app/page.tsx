@@ -5,6 +5,10 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
+const siteUrl = process.env.NODE_ENV === 'development' 
+    ? 'http://localhost:3000' 
+    : 'https://inforeus.uy'
+
 export default function Home() {
     // Estados para animar los contadores (números ficticios)
     const [stores, setStores] = useState(0)
@@ -144,7 +148,7 @@ export default function Home() {
                             </div>
                         </div>
                         <div>
-                            <Link href="https://inforeus.uy/consola" className="text-sm text-blue-500 underline hover:text-blue-700">
+                            <Link href={`${siteUrl}/consola`} className="text-sm text-blue-500 underline hover:text-blue-700">
                                 Acceso a Consola
                             </Link>
                         </div>
