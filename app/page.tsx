@@ -80,14 +80,6 @@ export default function Home() {
                                     height={50}
                                 />
                             </Link>
-                            <Link href="https://www.apple.com/app-store/" target="_blank" rel="noopener noreferrer">
-                                <Image
-                                    src="/App Store.png"
-                                    alt="Descargar en App Store"
-                                    width={160}
-                                    height={50}
-                                />
-                            </Link>
                         </section>
                     </div>
 
