@@ -17,12 +17,22 @@ import { Store, User } from "@prisma/client"
 
 const statuses = ["Activa", "Inactiva"]
 
+function convertFileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+    });
+  }
+
 export default function EditStorePage() {
     const { storeId } = useParams()
     const [adminId, setAdminId] = useState<number | undefined>(undefined)
     const [store, setStore] = useState<Store>()
     const [users, setUsers] = useState<User[]>([])
     const [mounted, setMounted] = useState(false)
+    const [logoBase64, setLogoBase64] = useState("")
 
     const [lastResult, action] = useActionState(updateStore, undefined)
 
@@ -151,8 +161,19 @@ export default function EditStorePage() {
                                 name="logoUrl"
                                 id="logoUrl"
                                 type="file"
-                            // Aquí podrías agregar el onChange para convertir la imagen a base64, similar a la creación.
+                                onChange={async (e) => {
+                                    const file = e.target.files && e.target.files[0];
+                                    if (file) {
+                                      try {
+                                        const base64 = await convertFileToBase64(file);
+                                        setLogoBase64(base64);
+                                      } catch (error) {
+                                        console.error("Error al convertir la imagen a base64:", error);
+                                      }
+                                    }
+                                  }}
                             />
+                            <input type="hidden" name={fields.logoUrl.name} value={logoBase64 || store.logoUrl} />
                             {fields.logoUrl.errors && (
                                 <p className="text-xs text-red-500">{fields.logoUrl.errors}</p>
                             )}
