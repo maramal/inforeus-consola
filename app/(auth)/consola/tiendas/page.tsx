@@ -11,6 +11,7 @@ async function getData(): Promise<Store[]> {
         id: store.id,
         name: store.name,
         featured: store.featured,
+        website: store.website || '',
         status: store.status
     }))
 
