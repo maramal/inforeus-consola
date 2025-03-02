@@ -49,14 +49,14 @@ model Store {
   keywords String[]
   status   StoreStatus  @default(Activa)
   adminId  Int
-  admin    User         @relation("StoreAdmin", fields: [adminId], references: [id])
+  admin    User         @relation("StoreAdmin", fields: [adminId], references: [id], onDelete: Restrict)
   visits   StoreVisit[]
 }
 
 model StoreVisit {
   id        Int      @id @default(autoincrement())
   storeId   Int
-  store     Store    @relation(fields: [storeId], references: [id])
+  store     Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
   ipAddress String
   createdAt DateTime @default(now())
 }
