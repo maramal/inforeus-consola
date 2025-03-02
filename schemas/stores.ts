@@ -6,6 +6,7 @@ export const createStoreSchema = z.object({
     logoUrl: z.string().url().optional(),
     featured: z.boolean().optional(),
     keywords: z.string().optional(),
+    website: z.string().url().optional(),
     status: z.string(),
     adminId: z.number()
 })
@@ -17,6 +18,7 @@ export const updateStoreSchema = z.object({
     logoUrl: z.any().optional(),
     featured: z.boolean().optional(),
     keywords: z.string().optional(),
+    website: z.string().url().optional(),
     status: z.string(),
     adminId: z.number()
 })

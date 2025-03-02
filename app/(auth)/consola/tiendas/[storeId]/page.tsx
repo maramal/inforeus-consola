@@ -73,6 +73,18 @@ export default async function StorePage({ params }: {
                                         : "Sin palabras clave"}
                                 </TableCell>
                             </TableRow>
+                            <TableRow>
+                                <TableCell className="font-bold">Sitio web:</TableCell>
+                                <TableCell>
+                                    {store.website ? (
+                                        <Link href={store.website} target="_blank">
+                                            {store.website}
+                                        </Link>
+                                    ) : (
+                                        "Sin sitio web"
+                                    )}
+                                </TableCell>
+                            </TableRow>
                         </TableBody>
                     </Table>
                 </CardContent>

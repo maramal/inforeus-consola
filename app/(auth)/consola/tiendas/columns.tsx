@@ -11,6 +11,7 @@ export type Store = {
     id: number
     name: string
     featured: boolean
+    website: string
     status: string
 }
 
@@ -50,6 +51,14 @@ export const columns: ColumnDef<Store>[] = [
         cell: ({ row }) => {
             const store = row.original
             return store.featured ? 'Sí' : 'No'
+        }
+    },
+    {
+        accessorKey: "website",
+        header: ({ column }) => <SortableColumn name="Sitio web" column={column} />,
+        cell: ({ row }) => {
+            const store = row.original
+            return store.website ? <Link href={store.website}>{store.website}</Link> : '-'
         }
     },
     {

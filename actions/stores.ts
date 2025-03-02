@@ -98,6 +98,7 @@ export async function createStore(prevState: unknown, formData: FormData) {
     const logoString = await getLogoString(logoValue);
     const featured = formData.get("featured") === "on";
     const keywords = formData.get("keywords") as string;
+    const website = formData.get("website") as string;
     const adminId = formData.get("adminId") as string;
 
     const existingStore = await prisma.store.findUnique({
@@ -117,6 +118,7 @@ export async function createStore(prevState: unknown, formData: FormData) {
             logoUrl: '',
             featured,
             keywords: keywords.split(',').map((keyword: string) => keyword.trim()),
+            website,
             adminId: Number(adminId)
         }
     });
@@ -157,6 +159,7 @@ export async function updateStore(prevState: unknown, formData: FormData) {
     const logoString = await getLogoString(logoValue);
     const featured = formData.get("featured") === "on";
     const keywords = formData.get("keywords") as string;
+    const website = formData.get("website") as string;
     const adminId = formData.get("adminId") as string;
 
     const existingStore = await prisma.store.findUnique({
@@ -169,6 +172,7 @@ export async function updateStore(prevState: unknown, formData: FormData) {
         address,
         featured,
         keywords: keywords.split(',').map((keyword: string) => keyword.trim()),
+        website,
         adminId: Number(adminId),
     };
 

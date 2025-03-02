@@ -47,6 +47,7 @@ model Store {
   logoUrl  String
   featured Boolean      @default(false)
   keywords String[]
+  website  String?
   status   StoreStatus  @default(Activa)
   adminId  Int
   admin    User         @relation("StoreAdmin", fields: [adminId], references: [id], onDelete: Restrict)

@@ -162,6 +162,24 @@ export default function NewStorePage() {
                             )}
                         </div>
 
+                        {/* Field: Sitio web */}
+                        <div className="space-y-1">
+                            <label htmlFor="website" className="block text-sm font-medium text-gray-700">
+                                Sitio web
+                            </label>
+                            <Input
+                                className="mt-1"
+                                key={fields.website.key}
+                                name={fields.website.name}
+                                defaultValue={fields.website.initialValue}
+                                id="website"
+                                placeholder="Ingrese la URL del sitio web"
+                            />
+                            {fields.website.errors && (
+                                <p className="text-xs text-red-500">{fields.website.errors}</p>
+                            )}
+                        </div>
+
                         {/* Field: Destacada (Rediseño del checkbox) */}
                         <div className="flex items-center space-x-3">
                             <input

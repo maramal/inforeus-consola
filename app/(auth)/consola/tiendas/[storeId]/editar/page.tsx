@@ -75,6 +75,7 @@ export default function EditStorePage() {
             logoUrl: store?.logoUrl || "",
             featured: store?.featured || false,
             keywords: store?.keywords ? store.keywords.join(", ") : "",
+            website: store?.website || "",
             status: store?.status || "Activa",
             adminId: store?.adminId || ""
         },
@@ -214,6 +215,24 @@ export default function EditStorePage() {
                             />
                             {fields.keywords.errors && (
                                 <p className="text-xs text-red-500">{fields.keywords.errors}</p>
+                            )}
+                        </div>
+
+                        {/* Campo: Sitio web */}
+                        <div className="space-y-1">
+                            <label htmlFor="website" className="block text-sm font-medium text-gray-700">
+                                Sitio web
+                            </label>
+                            <Input
+                                className="mt-1"
+                                key={fields.website.key}
+                                name={fields.website.name}
+                                defaultValue={store.website || ""}
+                                id="website"
+                                placeholder="Ingrese el sitio web"
+                            />
+                            {fields.website.errors && (
+                                <p className="text-xs text-red-500">{fields.website.errors}</p>
                             )}
                         </div>
 
