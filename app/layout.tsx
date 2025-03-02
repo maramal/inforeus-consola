@@ -16,7 +16,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Info Reus",
   description: "Descubre tiendas en el barrio Reus sin recorrer cada calle. Descarga la app para Google Play y App Store.",
-  viewport: "width=device-width, initial-scale=1",
 };
 
 export default function RootLayout({
