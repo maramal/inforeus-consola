@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { Store, User } from "@prisma/client"
+import { Textarea } from "@/components/ui/textarea"
 
 const statuses = ["Activa", "Inactiva"]
 
@@ -205,13 +206,13 @@ export default function EditStorePage() {
                             <label htmlFor="keywords" className="block text-sm font-medium text-gray-700">
                                 Palabras clave (separadas por comas)
                             </label>
-                            <Input
+                            <Textarea
                                 className="mt-1"
                                 key={fields.keywords.key}
                                 name={fields.keywords.name}
                                 defaultValue={store.keywords ? store.keywords.join(", ") : ""}
                                 id="keywords"
-                                placeholder="Ej: moda, ropa, descuentos"
+                                placeholder="Separadas por comas"
                             />
                             {fields.keywords.errors && (
                                 <p className="text-xs text-red-500">{fields.keywords.errors}</p>

@@ -31,7 +31,7 @@ export default async function StorePage({ params }: {
     }
 
     return (
-        <div className="bg-gray-200 w-full h-screen flex items-center justify-center">
+        <div className="bg-gray-200 w-full h-screen flex items-center justify-center overflow-auto">
             <Card className="w-full max-w-lg">
                 <CardHeader className="border-b pb-4">
                     <h1 className="text-2xl font-bold text-center">
@@ -68,9 +68,20 @@ export default async function StorePage({ params }: {
                             <TableRow>
                                 <TableCell className="font-bold">Palabras clave:</TableCell>
                                 <TableCell>
-                                    {store.keywords && store.keywords.length > 0
-                                        ? store.keywords.join(", ")
-                                        : "Sin palabras clave"}
+                                    {store.keywords && store.keywords.length > 0 ? (
+                                        <div className="flex flex-wrap gap-2 max-h-40 overflow-auto">
+                                            {store.keywords.map((keyword, i) => (
+                                                <span
+                                                    key={i}
+                                                    className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs"
+                                                >
+                                                    {keyword}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        "Sin palabras clave"
+                                    )}
                                 </TableCell>
                             </TableRow>
                             <TableRow>
