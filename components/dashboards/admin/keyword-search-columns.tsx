@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { getRelativeDate } from "@/lib/dates";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export type KeywordSearch = {
     id: number;
@@ -40,6 +41,14 @@ export const KeywordSearchColumns: ColumnDef<KeywordSearch>[] = [
     {
         accessorKey: "ipAddress",
         header: ({ column }) => <SortableColumn name="Dirección IP" column={column} />,
+        cell: ({ row }) => {
+            const { ipAddress } = row.original;
+            return (
+                <Link href={`https://who.is/whois-ip/ip-address/${ipAddress}`} target="_blank">
+                    {ipAddress}
+                </Link>
+            );
+        },
     },
     {
         accessorKey: "createdAt",
