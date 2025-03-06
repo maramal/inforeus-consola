@@ -8,6 +8,7 @@ import { getRelativeDate } from "@/lib/dates"
 import { Button } from "@/components/ui/button"
 import RowActions from "@/components/row-actions"
 import { deleteUser } from "@/actions/users"
+import Link from "next/link"
 
 export type User = {
     id: number
@@ -39,11 +40,25 @@ function SortableColumn({
 export const columns: ColumnDef<User>[] = [
     {
         accessorKey: "name",
-        header: ({ column }) => <SortableColumn name="Nombre" column={column} />
+        header: ({ column }) => <SortableColumn name="Nombre" column={column} />,
+        cell: ({ row }) => {
+            const user = row.original
+
+            return (
+                <Link href={`/consola/usuarios/${user.id}`}>{user.name}</Link>
+            )
+        }
     },
     {
         accessorKey: "username",
-        header: ({ column }) => <SortableColumn name="Nombre de usuario" column={column} />
+        header: ({ column }) => <SortableColumn name="Nombre de usuario" column={column} />,
+        cell: ({ row }) => {
+            const user = row.original
+
+            return (
+                <Link href={`/consola/usuarios/${user.id}`}>{user.username}</Link>
+            )
+        }
     },
     {
         accessorKey: "role",
