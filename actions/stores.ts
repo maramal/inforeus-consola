@@ -161,6 +161,7 @@ export async function updateStore(prevState: unknown, formData: FormData) {
     const keywords = formData.get("keywords") as string;
     const website = formData.get("website") as string;
     const adminId = formData.get("adminId") as string;
+    const status = formData.get("status") as string;
 
     const existingStore = await prisma.store.findUnique({
         where: { id: Number(storeId) }
@@ -170,11 +171,21 @@ export async function updateStore(prevState: unknown, formData: FormData) {
     const updatedData: any = {
         name,
         address,
-        featured,
         keywords: keywords.split(',').map((keyword: string) => keyword.trim()),
         website,
-        adminId: Number(adminId),
     };
+
+    if (adminId) {
+        updatedData.adminId = Number(adminId);
+    }
+
+    if (featured) {
+        updatedData.featured = featured;
+    }
+
+    if (status) {
+        updatedData.status = status;
+    }
 
     if (logoString && logoString.startsWith("data:image/")) {
         try {
