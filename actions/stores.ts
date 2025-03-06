@@ -190,8 +190,6 @@ export async function updateStore(prevState: unknown, formData: FormData) {
                 });
             }
         }
-    } else {
-        updatedData.logoUrl = logoString;
     }
 
     const store = await prisma.store.update({
