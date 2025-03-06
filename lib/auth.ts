@@ -4,15 +4,19 @@ import { getUserByAuthId } from "@/actions/users"
 import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 
-export async function checkUserRole(route: "usuarios" | "tiendas") {
-    const { redirectToSignIn, userId: authId } = await auth()
-    let redirectTo = ''
-
-    if (!authId) {
+export async function checkAuth() {
+    const { redirectToSignIn, userId } = await auth()
+    if (userId === null) {
         redirectToSignIn()
     }
 
-    const authUser = await getUserByAuthId(authId as string)
+    return getUserByAuthId(userId as string)
+}
+
+export async function checkUserRole(route: "usuarios" | "tiendas") {
+    let redirectTo = ''
+
+    const authUser = await checkAuth()
 
     switch (route) {
         case "usuarios":

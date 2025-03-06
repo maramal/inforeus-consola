@@ -14,6 +14,7 @@ import {
     TableCell,
     TableRow,
 } from "@/components/ui/table"
+import { checkAuth } from "@/lib/auth"
 
 export default async function StorePage({ params }: {
     params: Promise<{ storeId: string }>
@@ -29,6 +30,12 @@ export default async function StorePage({ params }: {
     if (!store) {
         notFound()
     }
+
+    const user = await checkAuth()
+    const isAdmin = user.role === "Administrador"
+    if (!isAdmin && !user.stores.some(s => s.id === storeId)) {
+        notFound()
+    }    
 
     return (
         <div className="bg-gray-200 w-full h-screen flex items-center justify-center overflow-auto">
@@ -106,11 +113,13 @@ export default async function StorePage({ params }: {
                             Editar
                         </Link>
                     </Button>
-                    <DeleteButton
-                        itemId={store.id}
-                        action={deleteStore}
-                        refUrl="/tiendas"
-                    />
+                    {isAdmin && (
+                        <DeleteButton
+                            itemId={store.id}
+                            action={deleteStore}
+                            refUrl="/tiendas"
+                        />
+                    )}                    
                 </CardFooter>
             </Card>
         </div>

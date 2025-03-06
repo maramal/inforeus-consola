@@ -1,12 +1,14 @@
-import prisma from "@/lib/prisma"
+"use server"
+
 import { Store, columns } from "./columns"
 import { DataTable, FilterInputProps } from "@/components/ui/data-table"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { checkUserRole } from "@/lib/auth"
+import { getStores } from "@/actions/stores"
 
 async function getData(): Promise<Store[]> {
-    const dbUsers = await prisma.store.findMany()
+    const dbUsers = await getStores()
     const stores: Store[] = dbUsers.map((store) => ({
         id: store.id,
         name: store.name,
