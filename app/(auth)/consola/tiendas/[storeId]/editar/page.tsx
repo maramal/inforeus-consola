@@ -54,8 +54,9 @@ export default function EditStorePage() {
         fetchStore()
     }, [storeId])
 
-    // Cargar lista de administradores
     useEffect(() => {
+        setMounted(true)
+
         const fetchUsers = async () => {
             const userResponse = await getUsers()
             setUsers(userResponse)
@@ -67,10 +68,6 @@ export default function EditStorePage() {
 
         fetchUsers()
         fetchAuthUser()
-    }, [])
-
-    useEffect(() => {
-        setMounted(true)
     }, [])
 
     const [form, fields] = useForm({
