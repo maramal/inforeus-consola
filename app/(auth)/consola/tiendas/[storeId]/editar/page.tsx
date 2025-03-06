@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { Store, User } from "@prisma/client"
 import { Textarea } from "@/components/ui/textarea"
+import { checkAuth } from "@/lib/auth"
 
 const statuses = ["Activa", "Inactiva"]
 
@@ -34,6 +35,7 @@ export default function EditStorePage() {
     const [users, setUsers] = useState<User[]>([])
     const [mounted, setMounted] = useState(false)
     const [logoBase64, setLogoBase64] = useState("")
+    const [authUser, setAuthUser] = useState<User | null>(null)
 
     const [lastResult, action] = useActionState(updateStore, undefined)
 
@@ -58,7 +60,13 @@ export default function EditStorePage() {
             const userResponse = await getUsers()
             setUsers(userResponse)
         }
+        const fetchAuthUser = async () => {
+            const authUser = await checkAuth()
+            setAuthUser(authUser)
+        }
+
         fetchUsers()
+        fetchAuthUser()
     }, [])
 
     useEffect(() => {
@@ -184,22 +192,24 @@ export default function EditStorePage() {
                         </div>
 
                         {/* Campo: Tienda Destacada */}
-                        <div className="flex items-center space-x-3">
-                            <input
-                                id="featured"
-                                type="checkbox"
-                                className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                                key={fields.featured.key}
-                                name={fields.featured.name}
-                                defaultChecked={store.featured}
-                            />
-                            <label htmlFor="featured" className="text-sm font-medium text-gray-700">
-                                Tienda Destacada
-                            </label>
-                            {fields.featured.errors && (
-                                <p className="text-xs text-red-500">{fields.featured.errors}</p>
-                            )}
-                        </div>
+                        {authUser && authUser.role === "Administrador" && (
+                            <div className="flex items-center space-x-3">
+                                <input
+                                    id="featured"
+                                    type="checkbox"
+                                    className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                    key={fields.featured.key}
+                                    name={fields.featured.name}
+                                    defaultChecked={store.featured}
+                                />
+                                <label htmlFor="featured" className="text-sm font-medium text-gray-700">
+                                    Tienda Destacada
+                                </label>
+                                {fields.featured.errors && (
+                                    <p className="text-xs text-red-500">{fields.featured.errors}</p>
+                                )}
+                            </div>
+                        )}
 
                         {/* Campo: Palabras clave */}
                         <div className="space-y-1">
@@ -238,58 +248,62 @@ export default function EditStorePage() {
                         </div>
 
                         {/* Campo: Estado */}
-                        <div className="space-y-1">
-                            <label htmlFor="status" className="block text-sm font-medium text-gray-700">
-                                Estado
-                            </label>
-                            <select
-                                className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                key={fields.status.key}
-                                name={fields.status.name}
-                                defaultValue={store.status}
-                                id="status"
-                            >
-                                {statuses.map((status) => (
-                                    <option key={status} value={status}>
-                                        {status}
-                                    </option>
-                                ))}
-                            </select>
-                            {fields.status.errors && (
-                                <p className="text-xs text-red-500">{fields.status.errors}</p>
-                            )}
-                        </div>
+                        {authUser && authUser.role === "Administrador" && (
+                            <div className="space-y-1">
+                                <label htmlFor="status" className="block text-sm font-medium text-gray-700">
+                                    Estado
+                                </label>
+                                <select
+                                    className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                    key={fields.status.key}
+                                    name={fields.status.name}
+                                    defaultValue={store.status}
+                                    id="status"
+                                >
+                                    {statuses.map((status) => (
+                                        <option key={status} value={status}>
+                                            {status}
+                                        </option>
+                                    ))}
+                                </select>
+                                {fields.status.errors && (
+                                    <p className="text-xs text-red-500">{fields.status.errors}</p>
+                                )}
+                            </div>
+                        )}
 
                         {/* Campo: Administrador */}
-                        <div className="space-y-1">
-                            <label htmlFor="adminId" className="block text-sm font-medium text-gray-700">
-                                Administrador
-                            </label>
-                            <select
-                                className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                key={fields.adminId.key}
-                                name={fields.adminId.name}
-                                value={adminId}
-                                id="adminId"
-                                onChange={(e) => {
-                                    setAdminId(Number(e.target.value))
-                                 }}
-                            >
-                                {users.length > 0 ? (
-                                    <option value="">Seleccionar un administrador</option>
-                                ) : (
-                                    <option value="">No se encontraron usuarios</option>
+                        {authUser && authUser.role === "Administrador" && (
+                            <div className="space-y-1">
+                                <label htmlFor="adminId" className="block text-sm font-medium text-gray-700">
+                                    Administrador
+                                </label>
+                                <select
+                                    className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                    key={fields.adminId.key}
+                                    name={fields.adminId.name}
+                                    value={adminId}
+                                    id="adminId"
+                                    onChange={(e) => {
+                                        setAdminId(Number(e.target.value))
+                                    }}
+                                >
+                                    {users.length > 0 ? (
+                                        <option value="">Seleccionar un administrador</option>
+                                    ) : (
+                                        <option value="">No se encontraron usuarios</option>
+                                    )}
+                                    {users.map((user) => (
+                                        <option key={user.id} value={user.id}>
+                                            {user.name}
+                                        </option>
+                                    ))}
+                                </select>
+                                {fields.adminId.errors && (
+                                    <p className="text-xs text-red-500">{fields.adminId.errors}</p>
                                 )}
-                                {users.map((user) => (
-                                    <option key={user.id} value={user.id}>
-                                        {user.name}
-                                    </option>
-                                ))}
-                            </select>
-                            {fields.adminId.errors && (
-                                <p className="text-xs text-red-500">{fields.adminId.errors}</p>
-                            )}
-                        </div>
+                            </div>
+                        )}
 
                         {/* Botón de enviar */}
                         <Button type="submit" className="w-full">
