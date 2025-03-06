@@ -19,6 +19,6 @@ export const updateStoreSchema = z.object({
     featured: z.boolean().optional(),
     keywords: z.string().optional(),
     website: z.string().url().optional(),
-    status: z.string().optional(),
-    adminId: z.number().optional()
+    status: z.string(),
+    adminId: z.number()
 })
