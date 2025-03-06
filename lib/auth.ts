@@ -16,17 +16,17 @@ export async function checkUserRole(route: "usuarios" | "tiendas") {
 
     switch (route) {
         case "usuarios":
-            redirectTo = `/usuarios/${authUser.id}`
+            redirectTo = `/consola/usuarios/${authUser.id}`
             break
         case "tiendas":
             if (authUser.stores.length > 0) {
-                redirectTo = `/tiendas/${authUser.stores[0].id}`
+                redirectTo = `/consola/tiendas/${authUser.stores[0].id}`
             } else {
-                redirectTo = '/'
+                redirectTo = '/consola'
             }
             break
         default:
-            redirectTo = '/'
+            redirectTo = '/consola'
     }
     
     if (authUser.role === "Cliente") {
