@@ -1,5 +1,7 @@
 "use client"
 
+import { Button } from '@/components/ui/button'
+import { DownloadCloud } from 'lucide-react'
 import Head from 'next/head'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -68,14 +70,27 @@ export default function Home() {
 
                         {/* Botones de descarga */}
                         <section className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-8">
-                            <Link href="https://play.google.com" target="_blank" rel="noopener noreferrer">
+                            {/*<Link href="https://play.google.com" target="_blank" rel="noopener noreferrer">
                                 <Image
                                     src="/Google Play.png"
                                     alt="Descargar en Google Play"
                                     width={160}
                                     height={50}
                                 />
-                            </Link>
+                            </Link>*/}
+                            <Button className="w-[300px] max-w-md flex items-center justify-center px-4 py-2">
+                                <Link
+                                    href="https://lateuy-my.sharepoint.com/:u:/g/personal/admin_late_uy/EQc3Aj0RavRDhyEkmJqr4qABo9Hz12NSkL4YVh5CM8bo9Q?e=q60XCR"
+                                    target="_blank"
+                                    className="flex items-center"
+                                >
+                                    <DownloadCloud size={24} className="mr-2" />
+                                    <span className="text-center">
+                                        Descarga directa (versión 1.0 Alpha)
+                                    </span>
+                                </Link>
+                            </Button>
+
                         </section>
                     </div>
 
@@ -117,7 +132,7 @@ export default function Home() {
                             />
                         </Link>
                     </section>
-                </main>                
+                </main>
             </div>
         </>
     )
